@@ -22,6 +22,21 @@
     <br>
 </div>
 
+<div class="form">
+<h2>For administrator only: Adding Quiz Questions</h2>
+  <input size="30" v-model="question" placeholder="Question"/>
+  <br>
+  <input size="30" v-model="path1" placeholder="Image 1"/>
+  <br>
+  <input size="30" v-model="path2" placeholder="Image 2"/>
+  <br>
+  <input size="30" v-model="password" placeholder="Admin password"/>
+  <br>
+  <button @click="addQuestion()">Add</button>
+  <br>
+  <button @click="removeMistake()">Remove</button>
+</div>
+
   </div>
 </template>
 
@@ -38,6 +53,7 @@ export default {
       totalVotes: 0,
       path1: "",
       path2: "",
+      password: "",
     }
   },
   created() {
@@ -72,6 +88,47 @@ export default {
         return true;
       } catch (error) {
         console.log(error);
+      }
+    },
+    async addQuestion() {
+
+      if(this.password === "don'tmess") {
+        try {
+          await axios.post("/api/quiz", {
+            question: this.question,
+            path1: this.path1,
+            path2: this.path2,
+          });
+          this.question = "";
+          this.path1 = "";
+          this.path2 = "";
+          this.password = "";
+          this.getQuestions();
+          return true;
+        } catch (error) {
+          console.log(error);
+        }
+      } else {
+        this.question = "";
+        this.path1 = "";
+        this.path2 = "";
+        this.password = "";
+      }
+    },
+    async removeMistake() {
+      if(this.password === "don'tmess") {
+        try {
+          let lastIndex = this.questions.length - 1;
+          let badq = this.questions[lastIndex];
+          await axios.delete("/api/quiz/" + badq._id);
+          this.getQuestions();
+          this.password = "";
+          return true;
+        } catch (error) {
+          console.log(error);
+        }
+      } else {
+        this.password = "";
       }
     },
   }
